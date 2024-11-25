@@ -1,0 +1,24 @@
+name: app_pos
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.0.0 # Versión actualizada compatible con Dart 3+
+  shared_preferences: ^2.1.0 # Versión actualizada
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.2 # Versión actualizada compatible
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0 # Versión actualizada para alinearse con Dart 3+
+
+flutter:
+  uses-material-design: true
