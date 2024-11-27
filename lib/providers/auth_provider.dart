@@ -5,8 +5,10 @@ import '../services/auth_service.dart';
 class AuthProvider with ChangeNotifier {
   UserModel? _user;
   final AuthService _authService = AuthService();
+  int? _sucursalId;
 
   UserModel? get user => _user;
+  int? get sucursalId => _sucursalId;
 
   Future<void> login(String username, String password) async {
     try {
@@ -15,6 +17,11 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       throw e;
     }
+  }
+
+  void setSucursalId(int id) {
+    _sucursalId = id;
+    notifyListeners();
   }
 
   String? get token => _user?.token;

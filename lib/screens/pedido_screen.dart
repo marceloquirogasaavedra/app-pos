@@ -25,8 +25,11 @@ class _PedidoScreenState extends State<PedidoScreen> {
 
   Future<void> _loadProducts() async {
     try {
-      final token = Provider.of<AuthProvider>(context, listen: false).token!;
-      final products = await _productService.fetchProducts(token);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final token = authProvider.token!;
+      final idSucursal = authProvider.sucursalId!;
+
+      final products = await _productService.fetchProducts(token, idSucursal);
       setState(() {
         _products = products;
         _isLoading = false;
@@ -86,7 +89,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
     // Crear el detalle del pedido
     final detalle = _selectedProducts.map((p) {
       return {
-        "id_producto": p["product"]["id"],
+        "id_producto": p["product"]["id_producto"],
         "cantidal": p["quantity"],
       };
     }).toList();
