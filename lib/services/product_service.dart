@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ProductService {
-  final String baseUrl = "http://localhost:8080/pos/pos/producto/por-sucursal";
+  final String baseUrl = "http://98.85.18.243:8080/pos/pos/producto/por-sucursal";
 
   Future<List<dynamic>> fetchProducts(String token, int idSucursal) async {
     final response = await http.get(
