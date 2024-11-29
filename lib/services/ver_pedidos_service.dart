@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class VerPedidosService {
-  final String baseUrl = "http://localhost:8080/pos/pos/pedido";
+  final String baseUrl = "http://98.85.18.243:8080/pos/pos/pedido";
 
   Future<List<dynamic>> fetchPedidos(String email, String token) async {
     final response = await http.get(
