@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class PedidoService {
   final String baseUrl = "http://localhost:8080/pos/pedido";
 
-  Future<void> enviarPedido(String email, String descripcion,
+  Future<void> enviarPedido(String email, String descripcion, int idCliente,
       List<Map<String, dynamic>> detalle, String token) async {
     final response = await http.post(
       Uri.parse(baseUrl),
@@ -15,6 +15,7 @@ class PedidoService {
       body: json.encode({
         "email": email,
         "descripcion": descripcion,
+        "id_cliente": idCliente,
         "detalle": detalle,
       }),
     );

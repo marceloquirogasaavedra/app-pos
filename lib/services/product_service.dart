@@ -14,6 +14,7 @@ class ProductService {
     );
 
     if (response.statusCode == 200) {
+      // Retornar directamente la lista de productos
       return json.decode(response.body);
     } else {
       throw Exception('Error al obtener productos: ${response.body}');

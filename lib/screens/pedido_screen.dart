@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/product_service.dart';
 import '../services/pedido_service.dart';
+import '../services/cliente_service.dart';
 import '../providers/auth_provider.dart';
 
 class PedidoScreen extends StatefulWidget {
@@ -12,10 +13,13 @@ class PedidoScreen extends StatefulWidget {
 class _PedidoScreenState extends State<PedidoScreen> {
   final ProductService _productService = ProductService();
   final PedidoService _pedidoService = PedidoService();
+  final ClienteService _clienteService = ClienteService();
   List<dynamic> _products = [];
   List<Map<String, dynamic>> _selectedProducts = [];
   bool _isLoading = true;
   final TextEditingController _descripcionController = TextEditingController();
+  final TextEditingController _nitController = TextEditingController();
+  Map<String, dynamic>? _clienteSeleccionado;
 
   @override
   void initState() {
@@ -44,21 +48,58 @@ class _PedidoScreenState extends State<PedidoScreen> {
     }
   }
 
+  Future<void> _buscarCliente() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final token = authProvider.token!;
+    final nit = _nitController.text.trim();
+
+    if (nit.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor ingresa el NIT del cliente')),
+      );
+      return;
+    }
+
+    try {
+      final cliente = await _clienteService.fetchCliente(token, nit);
+      setState(() {
+        _clienteSeleccionado = cliente;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cliente encontrado: ${cliente["nombre"]}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al buscar cliente: ${e.toString()}')),
+      );
+    }
+  }
+
   void _addNewProduct() {
     setState(() {
-      _selectedProducts.add({"product": null, "quantity": 1});
+      _selectedProducts.add({
+        "product": null,
+        "quantity": 1,
+        "precio": 0.0,
+        "subtotal": 0.0,
+      });
     });
   }
 
   void _updateProduct(int index, dynamic product) {
     setState(() {
       _selectedProducts[index]["product"] = product;
+      _selectedProducts[index]["precio"] = product["precioVenta"];
+      _selectedProducts[index]["subtotal"] =
+          _selectedProducts[index]["quantity"] * product["precioVenta"];
     });
   }
 
   void _updateQuantity(int index, int quantity) {
     setState(() {
       _selectedProducts[index]["quantity"] = quantity;
+      _selectedProducts[index]["subtotal"] =
+          quantity * _selectedProducts[index]["precio"];
     });
   }
 
@@ -86,6 +127,14 @@ class _PedidoScreenState extends State<PedidoScreen> {
       return;
     }
 
+    if (_clienteSeleccionado == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Por favor selecciona un cliente antes de enviar')),
+      );
+      return;
+    }
+
     // Crear el detalle del pedido
     final detalle = _selectedProducts.map((p) {
       return {
@@ -98,6 +147,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
       await _pedidoService.enviarPedido(
         authProvider.email!,
         _descripcionController.text,
+        _clienteSeleccionado!["id"], // Aquí se pasa el id_cliente
         detalle,
         authProvider.token!,
       );
@@ -126,6 +176,23 @@ class _PedidoScreenState extends State<PedidoScreen> {
                 child: Column(
                   children: [
                     TextField(
+                      controller: _nitController,
+                      decoration: InputDecoration(
+                        labelText: 'Buscar Cliente por NIT',
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.search),
+                          onPressed: _buscarCliente,
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    if (_clienteSeleccionado != null) ...[
+                      SizedBox(height: 10),
+                      Text(
+                          'Cliente seleccionado: ${_clienteSeleccionado!["nombre"]} ${_clienteSeleccionado!["apellido"]}'),
+                    ],
+                    SizedBox(height: 20),
+                    TextField(
                       controller: _descripcionController,
                       decoration: InputDecoration(
                         labelText: 'Descripción del pedido',
@@ -141,6 +208,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               DropdownButton<dynamic>(
                                 hint: Text('Selecciona un producto'),
@@ -156,6 +224,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
                                 },
                               ),
                               SizedBox(height: 10),
+                              Text('Precio: \$${selectedProduct["precio"]}'),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -184,6 +253,8 @@ class _PedidoScreenState extends State<PedidoScreen> {
                                   ),
                                 ],
                               ),
+                              Text(
+                                  'Subtotal: \$${selectedProduct["subtotal"]}'),
                             ],
                           ),
                         ),
