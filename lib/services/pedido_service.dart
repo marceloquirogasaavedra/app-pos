@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class PedidoService {
-  final String baseUrl = "http://localhost:8080/pos/pedido";
+  final String baseUrl = "http://localhost:8080/pos/pos/pedido";
 
   Future<void> enviarPedido(String email, String descripcion, int idCliente,
       List<Map<String, dynamic>> detalle, String token) async {

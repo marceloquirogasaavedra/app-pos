@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 
 class EliminarPedidoService {
-  final String baseUrl = "http://localhost:8080/pos/pedido";
+  final String baseUrl = "http://localhost:8080/pos/pos/pedido";
 
   Future<void> eliminarPedido(int idPedido, String token) async {
     final response = await http.delete(
